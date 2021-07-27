@@ -30,3 +30,10 @@ for(let op of opBtns){
     })
 }
 
+// Click event for CLEAR button
+const clear = document.getElementById('clear');
+clear.addEventListener('click', function(){
+    let currentDisplay = document.getElementById('display');
+    currentDisplay.innerText = '0';
+})
+
