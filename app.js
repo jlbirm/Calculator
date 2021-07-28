@@ -21,6 +21,21 @@ function backspace(currentDisplay){
     currentDisplay.innerText = str;
 }
 
+function getNums(currentDisplay){
+    const operators = ['−','+','×','÷'];
+    for(let o of operators){
+        if(currentDisplay.innerText.includes(o)){
+            let opIndex = currentDisplay.innerText.indexOf(o);
+            let x = Number(currentDisplay.innerText.slice(0, opIndex));
+            let y = Number(currentDisplay.innerText.slice(opIndex+1));
+
+            let equation = [x, o, y];
+        } else {
+            let equation = [Number(currentDisplay.innerText)];
+        }
+    } return(equation);
+}
+
 function solveNums(currentDisplay){
     const operators = ['−','+','×','÷'];
     for(let o of operators){
@@ -96,3 +111,18 @@ percentBtn.addEventListener('click', function(){
     currentDisplay.innerText = num/100;
 })
 
+//Click event for negative/positive button
+const negBtn = document.getElementById('negative');
+negBtn.addEventListener('click', function(){
+    let currentDisplay = document.getElementById('display');
+    equation = getNums(currentDisplay);
+
+})
+
+// Click event for equals button
+const equalsBtn = document.getElementById('equals');
+equalsBtn.addEventListener('click', function(){
+    let currentDisplay = document.getElementById('display');
+    num = solveNums(currentDisplay);
+    currentDisplay.innerText = num;
+})
