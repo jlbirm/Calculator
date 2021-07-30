@@ -1,15 +1,33 @@
-// Update calculator display
-// Used for all numerical buttons along with . + - * /
+let fullDisplayArr = []
+
+// Update current display
+// Used for all numerical buttons and decimal point
+// Current display shows current number being entered
 function updateDisplay(num){
-    let currentDisplay = document.getElementById('display');
+    let currentDisplay = document.getElementById('currentDisplay');
     if(currentDisplay.innerText === '0'){
-        if(['.','−','+','×','÷'].includes(num)){
+        if(num === '.'){
             currentDisplay.innerText = '0' + num;
         } else {
         currentDisplay.innerText = num;
         }     
     } else {
         currentDisplay.innerText = currentDisplay.innerText + num;
+    }
+}
+
+// Update full display
+// Used for all operators and equals buttons
+// Moves current display to full display with operator
+// Creates an array for later calculation
+function updateFullDisplay(operator){
+    let currentDisplay = document.getElementById('currentDisplay');
+    let fullDisplay = document.getElementById('fullDisplay');
+
+    fullDisplayArr.push(operator);
+
+    for(i of fullDisplayArr){
+        fullDisplay.innerText = fullDisplay.innerText + i;
     }
 }
 
@@ -21,49 +39,20 @@ function backspace(currentDisplay){
     currentDisplay.innerText = str;
 }
 
-function getNums(currentDisplay){
-    const operators = ['−','+','×','÷'];
-    for(let o of operators){
-        if(currentDisplay.innerText.includes(o)){
-            let opIndex = currentDisplay.innerText.indexOf(o);
-            let x = Number(currentDisplay.innerText.slice(0, opIndex));
-            let y = Number(currentDisplay.innerText.slice(opIndex+1));
+function solveNums(){
+    const operators = {
+        '−': function(a, b) {return a - b},
+        '+': function(a, b) {return a + b},
+        '×': function(a, b) {return a * b},
+        '÷': function(a, b) {return a / b}
+    };
+    
+    let a = fullDisplayArr[0];
+    let b = fullDisplayArr[2];
+    let op = fullDisplayArr[1];
 
-            let equation = [x, o, y];
-        } else {
-            let equation = [Number(currentDisplay.innerText)];
-        }
-    } return(equation);
-}
+    num = operators[op](a, b);
 
-function solveNums(currentDisplay){
-    const operators = ['−','+','×','÷'];
-    for(let o of operators){
-        if(currentDisplay.innerText.includes(o)){
-            let opIndex = currentDisplay.innerText.indexOf(o);
-            let x = Number(currentDisplay.innerText.slice(0, opIndex));
-            let y = Number(currentDisplay.innerText.slice(opIndex+1));
-
-            var num = 0;
-            switch (o){
-                case '−':
-                    num = x - y;
-                    break;
-                case '+':
-                    num = x + y;
-                    break;
-                case '×':
-                    num = x * y;
-                    break;
-                case '÷':
-                    num = x / y;
-                    break;
-            };
-
-        } else {
-            let num = Number(currentDisplay.innerText);
-        }
-    }
     return(num);
 }
 
@@ -80,33 +69,70 @@ for(let num of numBtns){
 const opBtns = document.getElementsByClassName('opButton');
 for(let op of opBtns){
     op.addEventListener('click', function(){
-        let currentDisplay = document.getElementById('display');
+        let currentDisplay = document.getElementById('currentDisplay');
+
+        // *************************
+        console.log(fullDisplayArr);
+        // *************************
+
         // If last button pressed was an operand, replace with new operand
-        if(['.','−','+','×','÷'].includes(currentDisplay.innerText.slice(-1))){
-            backspace(currentDisplay);
+        if(fullDisplayArr.length == 2){
+
+            // *************************
+            console.log('This replaces the operand');
+            // *************************
+
+            fullDisplayArr[1] = op.innerText;
+            for(i of fullDisplayArr){
+                fullDisplay.innerText = fullDisplay.innerText + i;
+            }
+        } 
+        // If there is already a full equation, solve equation and use that solution for this operator
+        else if(fullDisplayArr.length == 3){
+            
+            //*******************
+            console.log('This is for an array of 3');
+            //*******************
+
+            fullDisplayArr.push(currentDisplay.innerText);
+            num = solveNums();
+            fullDisplayArr = [];
+            updateFullDisplay(op.innerText);
+        } 
+        else {
+
+            // *************************
+            console.log('This is the else');
+            // *************************
+            fullDisplayArr.push(currentDisplay.innerText);
+            updateFullDisplay(op.innerText);
         }
-        updateDisplay(op.innerText);
+        currentDisplay.innerText = '0';
     })
 }
 
 // Click event for CLEAR button
 const clear = document.getElementById('clear');
 clear.addEventListener('click', function(){
-    let currentDisplay = document.getElementById('display');
+    let currentDisplay = document.getElementById('currentDisplay');
+    let fullDisplay = document.getElementById('fullDisplay');
     currentDisplay.innerText = '0';
+    fullDisplay.innerText = '';
+    fullDisplayArr = [];
+
 })
 
 // Click event for backspace button
 const backspaceBtn = document.getElementById('backspace');
 backspaceBtn.addEventListener('click', function(){
-    let currentDisplay = document.getElementById('display');
+    let currentDisplay = document.getElementById('currentDisplay');
     backspace(currentDisplay);
 })
 
 // Click event for percentage button
 const percentBtn = document.getElementById('percentage');
 percentBtn.addEventListener('click', function(){
-    let currentDisplay = document.getElementById('display');
+    let currentDisplay = document.getElementById('currentDisplay');
     num = solveNums(currentDisplay);
     currentDisplay.innerText = num/100;
 })
@@ -114,15 +140,19 @@ percentBtn.addEventListener('click', function(){
 //Click event for negative/positive button
 const negBtn = document.getElementById('negative');
 negBtn.addEventListener('click', function(){
-    let currentDisplay = document.getElementById('display');
-    equation = getNums(currentDisplay);
-
+    let currentDisplay = document.getElementById('currentDisplay');
+    let num = Number(currentDisplay.innerText * -1);
+    currentDisplay.innerText = num;
 })
 
 // Click event for equals button
 const equalsBtn = document.getElementById('equals');
 equalsBtn.addEventListener('click', function(){
-    let currentDisplay = document.getElementById('display');
-    num = solveNums(currentDisplay);
+    // Solve equation, show solution, and equation
+    num = solveNums();
     currentDisplay.innerText = num;
+    updateFullDisplay('=');
+
+    // Clear array for next equation
+    fullDisplayArr = [];
 })
