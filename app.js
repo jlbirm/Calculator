@@ -1,4 +1,5 @@
-let fullDisplayArr = []
+let fullDisplayArr = [];
+let lastKey = '';
 
 // Update current display
 // Used for all numerical buttons and decimal point
@@ -22,13 +23,17 @@ function updateDisplay(num){
 // Creates an array for later calculation
 function updateFullDisplay(operator){
     let currentDisplay = document.getElementById('currentDisplay');
-    let fullDisplay = document.getElementById('fullDisplay');
 
     fullDisplayArr.push(operator);
+    refreshFullDisplay();
+}
 
-    for(i of fullDisplayArr){
-        fullDisplay.innerText = fullDisplay.innerText + i;
-    }
+function refreshFullDisplay(){
+    let fullDisplay = document.getElementById('fullDisplay');
+    fullDisplay.innerText = '';
+        for(let i of fullDisplayArr){
+            fullDisplay.innerText = fullDisplay.innerText + i;
+        }
 }
 
 function backspace(currentDisplay){
@@ -47,13 +52,21 @@ function solveNums(){
         '÷': function(a, b) {return a / b}
     };
     
-    let a = fullDisplayArr[0];
-    let b = fullDisplayArr[2];
+    let a = Number(fullDisplayArr[0]);
+    let b = Number(fullDisplayArr[2]);
     let op = fullDisplayArr[1];
 
-    num = operators[op](a, b);
+    if(op){
+        num = operators[op](a, b);
+    } else{
+        num = a;
+    }
 
     return(num);
+}
+
+function setLastKeypress(key){
+    lastKey = key.innerText;
 }
 
 // Click event for numerical & . buttons
@@ -61,7 +74,7 @@ const numBtns = document.getElementsByClassName('numButton');
 for(let num of numBtns){
     num.addEventListener('click', function(){
         updateDisplay(num.innerText);
-        
+        setLastKeypress(num);
     })
 }
 
@@ -70,33 +83,35 @@ const opBtns = document.getElementsByClassName('opButton');
 for(let op of opBtns){
     op.addEventListener('click', function(){
         let currentDisplay = document.getElementById('currentDisplay');
-
-        // *************************
-        console.log(fullDisplayArr);
-        // *************************
+        const operators = ['−','+','×','÷'];
 
         // If last button pressed was an operand, replace with new operand
-        if(fullDisplayArr.length == 2){
+        if(operators.includes(lastKey)){
 
             // *************************
             console.log('This replaces the operand');
             // *************************
 
             fullDisplayArr[1] = op.innerText;
-            for(i of fullDisplayArr){
-                fullDisplay.innerText = fullDisplay.innerText + i;
-            }
+
+            console.log(fullDisplayArr);
+
+            refreshFullDisplay();
         } 
         // If there is already a full equation, solve equation and use that solution for this operator
-        else if(fullDisplayArr.length == 3){
+        else if(fullDisplayArr.length == 2){
             
             //*******************
             console.log('This is for an array of 3');
             //*******************
 
             fullDisplayArr.push(currentDisplay.innerText);
+
+            console.log(fullDisplayArr);
+
             num = solveNums();
             fullDisplayArr = [];
+            fullDisplayArr.push(num);
             updateFullDisplay(op.innerText);
         } 
         else {
@@ -104,10 +119,13 @@ for(let op of opBtns){
             // *************************
             console.log('This is the else');
             // *************************
+
             fullDisplayArr.push(currentDisplay.innerText);
             updateFullDisplay(op.innerText);
         }
         currentDisplay.innerText = '0';
+
+        setLastKeypress(op);
     })
 }
 
@@ -149,10 +167,15 @@ negBtn.addEventListener('click', function(){
 const equalsBtn = document.getElementById('equals');
 equalsBtn.addEventListener('click', function(){
     // Solve equation, show solution, and equation
+    fullDisplayArr.push(currentDisplay.innerText);
+
+    console.log(fullDisplayArr);
+
     num = solveNums();
     currentDisplay.innerText = num;
     updateFullDisplay('=');
 
     // Clear array for next equation
     fullDisplayArr = [];
+    setLastKeypress('=');
 })
