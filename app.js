@@ -100,6 +100,11 @@ for(let op of opBtns){
             fullDisplayArr.push(num);
             updateFullDisplay(op.innerText);
         } 
+        else if(fullDisplayArr.length >= 3) {
+            fullDisplayArr = [];
+            fullDisplayArr.push(currentDisplay.innerText);
+            updateFullDisplay(op.innerText);
+        }
         else {
             fullDisplayArr.push(currentDisplay.innerText);
             updateFullDisplay(op.innerText);
