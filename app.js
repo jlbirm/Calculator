@@ -56,9 +56,9 @@ function solveNums(){
     let b = Number(fullDisplayArr[2]);
     let op = fullDisplayArr[1];
 
-    if(op){
+    if(fullDisplayArr.length > 1){
         num = operators[op](a, b);
-    } else{
+    } else {
         num = a;
     }
 
@@ -87,27 +87,13 @@ for(let op of opBtns){
 
         // If last button pressed was an operand, replace with new operand
         if(operators.includes(lastKey)){
-
-            // *************************
-            console.log('This replaces the operand');
-            // *************************
-
             fullDisplayArr[1] = op.innerText;
-
-            console.log(fullDisplayArr);
 
             refreshFullDisplay();
         } 
         // If there is already a full equation, solve equation and use that solution for this operator
         else if(fullDisplayArr.length == 2){
-            
-            //*******************
-            console.log('This is for an array of 3');
-            //*******************
-
             fullDisplayArr.push(currentDisplay.innerText);
-
-            console.log(fullDisplayArr);
 
             num = solveNums();
             fullDisplayArr = [];
@@ -115,11 +101,6 @@ for(let op of opBtns){
             updateFullDisplay(op.innerText);
         } 
         else {
-
-            // *************************
-            console.log('This is the else');
-            // *************************
-
             fullDisplayArr.push(currentDisplay.innerText);
             updateFullDisplay(op.innerText);
         }
@@ -151,8 +132,12 @@ backspaceBtn.addEventListener('click', function(){
 const percentBtn = document.getElementById('percentage');
 percentBtn.addEventListener('click', function(){
     let currentDisplay = document.getElementById('currentDisplay');
-    num = solveNums(currentDisplay);
+    fullDisplayArr.push(currentDisplay.innerText);
+    refreshFullDisplay();
+    num = solveNums();
     currentDisplay.innerText = num/100;
+    fullDisplayArr = [];
+    setLastKeypress('%');
 })
 
 //Click event for negative/positive button
@@ -163,13 +148,29 @@ negBtn.addEventListener('click', function(){
     currentDisplay.innerText = num;
 })
 
+//Click event for square button
+const sqBtn = document.getElementById('squared');
+sqBtn.addEventListener('click', function(){
+    let currentDisplay = document.getElementById('currentDisplay');
+    let num = Number(currentDisplay.innerText * currentDisplay.innerText);
+    currentDisplay.innerText = num;
+    setLastKeypress('sq');
+})
+
+//Click event for square root button
+const sqrtBtn = document.getElementById('squareRoot');
+sqrtBtn.addEventListener('click', function(){
+    let currentDisplay = document.getElementById('currentDisplay');
+    let num = Math.sqrt(Number(currentDisplay.innerText));
+    currentDisplay.innerText = num;
+    setLastKeypress('sqrt');
+})
+
 // Click event for equals button
 const equalsBtn = document.getElementById('equals');
 equalsBtn.addEventListener('click', function(){
     // Solve equation, show solution, and equation
     fullDisplayArr.push(currentDisplay.innerText);
-
-    console.log(fullDisplayArr);
 
     num = solveNums();
     currentDisplay.innerText = num;
